@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.pytest_cache/
+.claude/
+netskope-ca.crt
+movies_data_assignment.csv
+SDE-1-Assignment-JAN-2026.pdf
