@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 
 from app.routes import paths
 from app.services.importer import CsvImportError
@@ -17,6 +17,12 @@ def upload_movies():
     try:
         summary = get_movie_service().import_csv(stream)
     except CsvImportError as exc:
+        current_app.logger.warning("rejected upload: %s", exc)
         return jsonify({"error": str(exc)}), 400
 
+    current_app.logger.info(
+        "imported movies: inserted=%s skipped=%s",
+        summary["inserted"],
+        summary["skipped"],
+    )
     return jsonify(summary), 201

@@ -10,3 +10,5 @@ class Config:
 
     DEFAULT_PAGE_SIZE = int(os.getenv("DEFAULT_PAGE_SIZE", "20"))
     MAX_PAGE_SIZE = int(os.getenv("MAX_PAGE_SIZE", "100"))
+
+    LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

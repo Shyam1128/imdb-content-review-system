@@ -1,10 +1,24 @@
+import logging
+
 from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException
 
 from app.config import Config
 from app.db import init_db
-from app.routes import movies, paths, upload
+from app.routes import health, movies, paths, upload
 from app.services.movie_service import MovieService
+
+
+def _configure_logging(app):
+    gunicorn_logger = logging.getLogger("gunicorn.error")
+    if gunicorn_logger.handlers:
+        app.logger.handlers = gunicorn_logger.handlers
+    else:
+        logging.basicConfig(
+            level=app.config["LOG_LEVEL"],
+            format="[%(asctime)s] [%(levelname)s] %(message)s",
+        )
+    app.logger.setLevel(app.config["LOG_LEVEL"])
 
 
 def _register_error_handlers(app):
@@ -22,6 +36,8 @@ def create_app(config=None):
     app = Flask(__name__)
     app.config.from_object(config or Config)
 
+    _configure_logging(app)
+
     collection = init_db(app)
     app.extensions["movie_service"] = MovieService(
         collection,
@@ -32,10 +48,7 @@ def create_app(config=None):
 
     app.register_blueprint(upload.bp, url_prefix=paths.API_PREFIX)
     app.register_blueprint(movies.bp, url_prefix=paths.API_PREFIX)
-
-    @app.get(paths.HEALTH)
-    def health():
-        return jsonify({"status": "ok"})
+    app.register_blueprint(health.bp)
 
     _register_error_handlers(app)
     return app

@@ -107,6 +107,19 @@ MONGO_URI=mongodb://localhost:27017 pytest
 
 A Postman collection is included: `postman_collection.json`.
 
+## Logs
+
+The app logs to stdout/stderr (gunicorn access logs, an INFO line per import,
+and full tracebacks on unexpected errors). To watch just the app without the
+MongoDB noise:
+
+```bash
+docker compose logs -f app
+```
+
+Set `LOG_LEVEL` (default `INFO`) to adjust verbosity. MongoDB runs with
+`--quiet` and capped log files to keep `docker compose up` readable.
+
 ## Database design
 
 Single `movies` collection. Indexes are created on startup for `year`,
