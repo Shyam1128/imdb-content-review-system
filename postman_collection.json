@@ -1,0 +1,59 @@
+{
+  "info": {
+    "name": "IMDb Content Review System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5000" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/health"
+      }
+    },
+    {
+      "name": "Upload CSV",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/movies/upload",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": "sample/movies_sample.csv" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "List Movies (paginated)",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/movies?page=1&page_size=20"
+      }
+    },
+    {
+      "name": "Filter by year and language",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/movies?year=2016&language=hi"
+      }
+    },
+    {
+      "name": "Sort by ratings desc",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/movies?sort_by=ratings&order=desc"
+      }
+    },
+    {
+      "name": "Sort by release_date asc",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/movies?sort_by=release_date&order=asc"
+      }
+    }
+  ]
+}
