@@ -1,12 +1,13 @@
 from flask import Blueprint, jsonify, request
 
+from app.routes import paths
 from app.services.movie_service import get_movie_service
 from app.services.query import QueryError
 
 bp = Blueprint("movies", __name__)
 
 
-@bp.get("/api/movies")
+@bp.get(paths.MOVIES)
 def list_movies():
     try:
         result = get_movie_service().list_movies(request.args)

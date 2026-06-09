@@ -35,7 +35,7 @@ def client():
 def _upload(client, csv_text=SAMPLE_CSV):
     data = {"file": (io.BytesIO(csv_text.encode("utf-8")), "movies.csv")}
     return client.post(
-        "/api/movies/upload", data=data, content_type="multipart/form-data"
+        "/api/v1/movies/import", data=data, content_type="multipart/form-data"
     )
 
 
@@ -47,7 +47,7 @@ def test_upload_inserts_rows(client):
 
 def test_pagination(client):
     _upload(client)
-    resp = client.get("/api/movies?page=1&page_size=2")
+    resp = client.get("/api/v1/movies?page=1&page_size=2")
     body = resp.get_json()
     assert body["total"] == 4
     assert len(body["data"]) == 2
@@ -56,7 +56,7 @@ def test_pagination(client):
 
 def test_filter_by_year_and_language(client):
     _upload(client)
-    resp = client.get("/api/movies?year=2020&language=fr")
+    resp = client.get("/api/v1/movies?year=2020&language=fr")
     body = resp.get_json()
     assert body["total"] == 1
     assert body["data"][0]["title"] == "Gamma"
@@ -64,27 +64,27 @@ def test_filter_by_year_and_language(client):
 
 def test_sort_by_ratings_desc(client):
     _upload(client)
-    resp = client.get("/api/movies?sort_by=ratings&order=desc")
+    resp = client.get("/api/v1/movies?sort_by=ratings&order=desc")
     titles = [m["title"] for m in resp.get_json()["data"]]
     assert titles[0] == "Delta"
 
 
 def test_sort_by_release_date_asc(client):
     _upload(client)
-    resp = client.get("/api/movies?sort_by=release_date&order=asc")
+    resp = client.get("/api/v1/movies?sort_by=release_date&order=asc")
     titles = [m["title"] for m in resp.get_json()["data"]]
     assert titles[0] == "Beta"
 
 
 def test_invalid_sort_field_returns_400(client):
-    resp = client.get("/api/movies?sort_by=title")
+    resp = client.get("/api/v1/movies?sort_by=title")
     assert resp.status_code == 400
 
 
 def test_empty_upload_returns_400(client):
     data = {"file": (io.BytesIO(b""), "empty.csv")}
     resp = client.post(
-        "/api/movies/upload", data=data, content_type="multipart/form-data"
+        "/api/v1/movies/import", data=data, content_type="multipart/form-data"
     )
     assert resp.status_code == 400
     assert "error" in resp.get_json()
@@ -96,7 +96,7 @@ def test_upload_unrecognised_columns_returns_400(client):
     csv_text = "id,email,address\n1,a@b.com,Earth\n"
     data = {"file": (io.BytesIO(csv_text.encode("utf-8")), "users.csv")}
     resp = client.post(
-        "/api/movies/upload", data=data, content_type="multipart/form-data"
+        "/api/v1/movies/import", data=data, content_type="multipart/form-data"
     )
     assert resp.status_code == 400
     assert "error" in resp.get_json()
@@ -107,14 +107,14 @@ def test_upload_partial_columns_is_accepted(client):
     csv_text = "title,release_date\nAlpha,2020-01-15\n"
     data = {"file": (io.BytesIO(csv_text.encode("utf-8")), "partial.csv")}
     resp = client.post(
-        "/api/movies/upload", data=data, content_type="multipart/form-data"
+        "/api/v1/movies/import", data=data, content_type="multipart/form-data"
     )
     assert resp.status_code == 201
     assert resp.get_json()["inserted"] == 1
 
 
 def test_unknown_route_returns_json_404(client):
-    resp = client.get("/api/does-not-exist")
+    resp = client.get("/api/v1/does-not-exist")
     assert resp.status_code == 404
     assert resp.content_type.startswith("application/json")
     assert "error" in resp.get_json()
@@ -139,7 +139,7 @@ def test_real_schema_aliases_and_derived_year(client):
         "Toy Story,en,1995-10-30,7.7,Toy Story\n"
     )
     _upload(client, csv_text)
-    resp = client.get("/api/movies?year=1995&language=en")
+    resp = client.get("/api/v1/movies?year=1995&language=en")
     body = resp.get_json()
     assert body["total"] == 1
     movie = body["data"][0]

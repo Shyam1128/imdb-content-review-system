@@ -18,7 +18,7 @@
       "name": "Upload CSV",
       "request": {
         "method": "POST",
-        "url": "{{base_url}}/api/movies/upload",
+        "url": "{{base_url}}/api/v1/movies/import",
         "body": {
           "mode": "formdata",
           "formdata": [
@@ -31,28 +31,28 @@
       "name": "List Movies (paginated)",
       "request": {
         "method": "GET",
-        "url": "{{base_url}}/api/movies?page=1&page_size=20"
+        "url": "{{base_url}}/api/v1/movies?page=1&page_size=20"
       }
     },
     {
       "name": "Filter by year and language",
       "request": {
         "method": "GET",
-        "url": "{{base_url}}/api/movies?year=2016&language=hi"
+        "url": "{{base_url}}/api/v1/movies?year=2016&language=hi"
       }
     },
     {
       "name": "Sort by ratings desc",
       "request": {
         "method": "GET",
-        "url": "{{base_url}}/api/movies?sort_by=ratings&order=desc"
+        "url": "{{base_url}}/api/v1/movies?sort_by=ratings&order=desc"
       }
     },
     {
       "name": "Sort by release_date asc",
       "request": {
         "method": "GET",
-        "url": "{{base_url}}/api/movies?sort_by=release_date&order=asc"
+        "url": "{{base_url}}/api/v1/movies?sort_by=release_date&order=asc"
       }
     }
   ]

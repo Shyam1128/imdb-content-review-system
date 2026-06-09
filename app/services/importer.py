@@ -4,16 +4,15 @@ from datetime import datetime
 
 
 class CsvImportError(ValueError):
-    """Base for client-side CSV problems (maps to HTTP 400)."""
+    pass
 
 
 class EmptyUploadError(CsvImportError):
-    """Raised when the uploaded CSV has no header row / no data."""
+    pass
 
 
 class InvalidCsvError(CsvImportError):
-    """Raised when the CSV header contains none of the recognised movie
-    columns, so nothing useful could be imported."""
+    pass
 
 
 class _RawStreamReader(io.RawIOBase):
@@ -50,8 +49,6 @@ class CsvMovieImporter:
 
     DATE_FORMATS = ("%Y-%m-%d", "%d-%m-%Y", "%m/%d/%Y", "%d/%m/%Y", "%Y")
 
-    # A CSV must map to at least one of these to be a usable movie upload;
-    # otherwise it's the wrong file and is rejected with a 400.
     REQUIRED_FIELDS = {"title", "language", "release_date", "ratings"}
 
     def __init__(self, batch_size=5000):

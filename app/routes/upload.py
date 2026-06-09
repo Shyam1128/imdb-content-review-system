@@ -1,12 +1,13 @@
 from flask import Blueprint, jsonify, request
 
+from app.routes import paths
 from app.services.importer import CsvImportError
 from app.services.movie_service import get_movie_service
 
 bp = Blueprint("upload", __name__)
 
 
-@bp.post("/api/movies/upload")
+@bp.post(paths.MOVIES_IMPORT)
 def upload_movies():
     if "file" in request.files:
         stream = request.files["file"].stream

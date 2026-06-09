@@ -25,7 +25,7 @@ App: <http://localhost:5000> · MongoDB on `localhost:27017`.
 Load the sample data:
 
 ```bash
-curl -F "file=@sample/movies_sample.csv" http://localhost:5000/api/movies/upload
+curl -F "file=@sample/movies_sample.csv" http://localhost:5000/api/v1/movies/import
 ```
 
 ## Run locally without Docker
@@ -41,13 +41,13 @@ python run.py
 
 ## API
 
-### `POST /api/movies/upload`
+### `POST /api/v1/movies/import`
 
 Upload a CSV. Send a multipart form field named `file`, or post the raw CSV
 body.
 
 ```bash
-curl -F "file=@sample/movies_sample.csv" http://localhost:5000/api/movies/upload
+curl -F "file=@sample/movies_sample.csv" http://localhost:5000/api/v1/movies/import
 ```
 
 Response:
@@ -73,7 +73,7 @@ matched case-insensitively; **all other columns** (`budget`, `revenue`,
 > `release_date`**. Rows with an empty `release_date` therefore have no `year`
 > and sort first under `order=asc` (standard MongoDB null ordering).
 
-### `GET /api/movies`
+### `GET /api/v1/movies`
 
 | param       | description                                              |
 |-------------|----------------------------------------------------------|
@@ -85,7 +85,7 @@ matched case-insensitively; **all other columns** (`budget`, `revenue`,
 | `order`     | `asc` or `desc` (default `asc`)                          |
 
 ```bash
-curl "http://localhost:5000/api/movies?year=2016&language=hi&sort_by=ratings&order=desc"
+curl "http://localhost:5000/api/v1/movies?year=2016&language=hi&sort_by=ratings&order=desc"
 ```
 
 Response:
