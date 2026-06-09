@@ -19,7 +19,11 @@ def get_collection():
 
 def _ensure_indexes(collection):
     collection.create_index([("year", ASCENDING)])
-    collection.create_index([("language", ASCENDING)])
     collection.create_index([("release_date", ASCENDING)])
     collection.create_index([("ratings", ASCENDING)])
-    collection.create_index([("language", ASCENDING), ("year", ASCENDING)])
+    collection.create_index(
+        [("language", ASCENDING), ("year", ASCENDING), ("ratings", ASCENDING)]
+    )
+    collection.create_index(
+        [("language", ASCENDING), ("year", ASCENDING), ("release_date", ASCENDING)]
+    )
