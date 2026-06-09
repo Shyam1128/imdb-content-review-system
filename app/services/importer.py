@@ -3,6 +3,19 @@ import io
 from datetime import datetime
 
 
+class CsvImportError(ValueError):
+    """Base for client-side CSV problems (maps to HTTP 400)."""
+
+
+class EmptyUploadError(CsvImportError):
+    """Raised when the uploaded CSV has no header row / no data."""
+
+
+class InvalidCsvError(CsvImportError):
+    """Raised when the CSV header contains none of the recognised movie
+    columns, so nothing useful could be imported."""
+
+
 class _RawStreamReader(io.RawIOBase):
     def __init__(self, stream):
         self._stream = stream
@@ -37,6 +50,10 @@ class CsvMovieImporter:
 
     DATE_FORMATS = ("%Y-%m-%d", "%d-%m-%Y", "%m/%d/%Y", "%d/%m/%Y", "%Y")
 
+    # A CSV must map to at least one of these to be a usable movie upload;
+    # otherwise it's the wrong file and is rejected with a 400.
+    REQUIRED_FIELDS = {"title", "language", "release_date", "ratings"}
+
     def __init__(self, batch_size=5000):
         self._batch_size = batch_size
 
@@ -48,12 +65,19 @@ class CsvMovieImporter:
         reader = csv.DictReader(text_stream)
 
         if not reader.fieldnames:
-            return {"inserted": 0, "skipped": 0, "errors_sample": ["empty file / no header"]}
+            raise EmptyUploadError("empty file / no header")
 
         field_map = {
             self._normalise_header(h): self.COLUMN_ALIASES.get(self._normalise_header(h))
             for h in reader.fieldnames
         }
+
+        recognised = {canonical for canonical in field_map.values() if canonical}
+        if not (recognised & self.REQUIRED_FIELDS):
+            raise InvalidCsvError(
+                "CSV has no recognised movie columns; expected at least one of "
+                f"{sorted(self.REQUIRED_FIELDS)}"
+            )
 
         inserted = 0
         skipped = 0

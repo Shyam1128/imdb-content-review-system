@@ -81,6 +81,58 @@ def test_invalid_sort_field_returns_400(client):
     assert resp.status_code == 400
 
 
+def test_empty_upload_returns_400(client):
+    data = {"file": (io.BytesIO(b""), "empty.csv")}
+    resp = client.post(
+        "/api/movies/upload", data=data, content_type="multipart/form-data"
+    )
+    assert resp.status_code == 400
+    assert "error" in resp.get_json()
+
+
+def test_upload_unrecognised_columns_returns_400(client):
+    # A CSV with a valid header but none of the movie columns is the wrong file.
+    # (Avoid 'name', which is an alias for 'title'.)
+    csv_text = "id,email,address\n1,a@b.com,Earth\n"
+    data = {"file": (io.BytesIO(csv_text.encode("utf-8")), "users.csv")}
+    resp = client.post(
+        "/api/movies/upload", data=data, content_type="multipart/form-data"
+    )
+    assert resp.status_code == 400
+    assert "error" in resp.get_json()
+
+
+def test_upload_partial_columns_is_accepted(client):
+    # Lenient: title + release_date present (no ratings/language) is still usable.
+    csv_text = "title,release_date\nAlpha,2020-01-15\n"
+    data = {"file": (io.BytesIO(csv_text.encode("utf-8")), "partial.csv")}
+    resp = client.post(
+        "/api/movies/upload", data=data, content_type="multipart/form-data"
+    )
+    assert resp.status_code == 201
+    assert resp.get_json()["inserted"] == 1
+
+
+def test_unknown_route_returns_json_404(client):
+    resp = client.get("/api/does-not-exist")
+    assert resp.status_code == 404
+    assert resp.content_type.startswith("application/json")
+    assert "error" in resp.get_json()
+
+
+def test_unexpected_error_returns_json_500():
+    app = create_app(TestConfig)
+    app.config["PROPAGATE_EXCEPTIONS"] = False  # let the 500 handler run
+
+    @app.get("/boom")
+    def boom():
+        raise RuntimeError("kaboom")
+
+    resp = app.test_client().get("/boom")
+    assert resp.status_code == 500
+    assert resp.get_json() == {"error": "internal server error"}
+
+
 def test_real_schema_aliases_and_derived_year(client):
     csv_text = (
         "original_title,original_language,release_date,vote_average,title\n"
