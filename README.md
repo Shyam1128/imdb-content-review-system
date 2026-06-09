@@ -36,7 +36,7 @@ Requires a running MongoDB (default `mongodb://localhost:27017`).
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env          # adjust if needed
-python run.py
+python main.py
 ```
 
 ## API

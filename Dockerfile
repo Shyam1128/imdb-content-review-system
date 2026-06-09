@@ -21,4 +21,4 @@ RUN pip install --no-cache-dir \
     gunicorn==22.0.0
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--timeout", "0", "--workers", "2", \
      "--access-logfile", "-", "--error-logfile", "-", "--capture-output", \
-     "run:app"]
+     "main:app"]
